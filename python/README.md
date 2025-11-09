@@ -1,20 +1,6 @@
-# Poker Calculator
+# Poker Calculator (Python Version)
 
-A terminal-based poker probability calculator that helps you track cards and calculate hand probabilities in real-time.
-
-Available in both C++11 and Python 3!
-
-## Quick Start
-
-**Choose Your Version:**
-
-- **C++ Version**: Fast, compiled executable
-  - See instructions below
-  - Best for performance
-
-- **Python Version**: No compilation needed
-  - See [python/README.md](python/README.md)
-  - Best for ease of use and portability
+A Python 3 terminal-based poker probability calculator that helps you track cards and calculate hand probabilities in real-time.
 
 ## Features
 
@@ -24,28 +10,20 @@ Available in both C++11 and Python 3!
 - **Texas Hold'em Hand Analysis**: Calculates probabilities for all poker hands
 - **Joker Support**: Includes both small (j) and large (J) jokers
 - **Interactive Interface**: Easy card entry and management
+- **Pure Python**: No external dependencies required
 
-## C++ Version
+## Requirements
 
-This section describes the C++ implementation. For the Python version, see [python/README.md](python/README.md).
+- Python 3.6 or higher
+- Terminal with ANSI color support (most modern terminals)
 
-### Building the Program
+## Installation
 
-#### Requirements
-- C++11 compatible compiler (g++, clang++)
-- Terminal with ANSI color support
-
-### Compilation
+No installation required! The program uses only Python standard library.
 
 ```bash
-# Using g++
-g++ -std=c++11 -o poker_calculator poker_calculator.cpp
-
-# Using clang++
-clang++ -std=c++11 -o poker_calculator poker_calculator.cpp
-
-# With Makefile (if available)
-make
+# Make the script executable (optional)
+chmod +x poker_calculator.py
 ```
 
 ## How to Use
@@ -53,7 +31,11 @@ make
 ### Starting the Program
 
 ```bash
-./poker_calculator
+# Run directly
+python3 poker_calculator.py
+
+# Or if executable
+./poker_calculator.py
 ```
 
 ### Card Entry Format
@@ -98,6 +80,7 @@ J     - Large Joker
 - **`reset`** or **`r`**: Clear all selected cards and start over
 - **`undo`** or **`u`**: Remove the last entered card
 - **`quit`**, **`q`**, or **`exit`**: Exit the program
+- **Ctrl+C**: Emergency exit
 
 ## Display Explanation
 
@@ -199,19 +182,31 @@ Enter command: h2
 3. **Use reset often**: Start fresh for new hands with `reset`
 4. **Undo mistakes**: Made an error? Use `undo` to remove the last card
 5. **Watch for draws**: The program shows what you're drawing to (flush, straight, etc.)
+6. **Exit quickly**: Press Ctrl+C to exit at any time
 
 ## Technical Details
 
-- **Language**: C++11
+- **Language**: Python 3.6+
+- **Dependencies**: None (uses standard library only)
 - **Display**: ANSI escape codes for colors and formatting
 - **Probability Calculation**: Combinatorial analysis
 - **Platform**: Linux/macOS/Windows (with ANSI support)
+- **Code Style**: Type hints, enums, and object-oriented design
+
+## Python-Specific Features
+
+- **Type Hints**: Full type annotations for better code clarity
+- **Enums**: Clean enum-based suit representation
+- **List Comprehensions**: Efficient card filtering
+- **Counter**: Built-in collections for rank counting
+- **Graceful Exit**: Handles Ctrl+C cleanly
 
 ## Troubleshooting
 
 ### Colors not displaying?
 - Ensure your terminal supports ANSI colors
 - On Windows, use Windows Terminal or enable ANSI support
+- Try running in a different terminal emulator
 
 ### Cards not registering?
 - Check format: suit letter (lowercase) + rank
@@ -222,16 +217,35 @@ Enter command: h2
 - The program uses theoretical Texas Hold'em probabilities
 - Probabilities change as you select more cards
 
+### Python version error?
+```bash
+# Check your Python version
+python3 --version
+
+# Should be 3.6 or higher
+```
+
+## Differences from C++ Version
+
+The Python version offers the same functionality as the C++ version with these differences:
+
+- **No compilation required**: Run directly with Python interpreter
+- **Platform independent**: Works on any system with Python 3.6+
+- **More readable code**: Python's syntax makes the logic clearer
+- **Type hints**: Optional type annotations for better IDE support
+- **Same features**: All functionality is identical to C++ version
+
 ## Notes
 
 - Jokers are displayed but excluded from probability calculations
 - The calculator assumes a standard 52-card deck
 - Probabilities are based on 5-card poker hands
 - The program uses bright/dim colors to show card availability
+- Uses only Python standard library - no pip install needed
 
 ## License
 
-See LICENSE file for details.
+See LICENSE file in the repository root for details.
 
 ## Contributing
 

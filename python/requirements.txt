@@ -1,0 +1,17 @@
+# Poker Calculator - Python Requirements
+#
+# This program uses only Python standard library.
+# No external dependencies are required!
+#
+# Minimum Python version: 3.6
+#
+# To verify your Python version:
+#   python3 --version
+#
+# The program uses these standard library modules:
+# - os (terminal operations)
+# - sys (exit handling)
+# - enum (Suit enum)
+# - typing (type hints)
+# - itertools (combinations)
+# - collections (Counter)
