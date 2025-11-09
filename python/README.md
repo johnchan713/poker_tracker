@@ -223,4 +223,4 @@ See LICENSE file in the repository root for details.
 
 ## Contributing
 
-Feel free to submit issues or pull requests to improve the calculator!
+Feel free to submit issues or pull requests to improve the tracker!
