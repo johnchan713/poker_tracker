@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 """
-Poker Calculator - A terminal-based poker probability calculator
-Tracks cards and calculates hand probabilities in real-time
+Poker Card Tracker - A terminal-based card tracking system
+Displays all 52 cards with visual indicators for used/available cards
 """
 
-import os
 import sys
 from enum import Enum
-from typing import List, Dict, Tuple, Optional
-from itertools import combinations
-from collections import Counter
+from typing import List
 
 
 # ANSI color codes
@@ -159,7 +156,7 @@ class PokerDeck:
     def display(self):
         """Display all cards in the deck"""
         print(Color.CLEAR)
-        print(f"{Color.BOLD}=== POKER CALCULATOR ==={Color.RESET}\n")
+        print(f"{Color.BOLD}=== POKER CARD TRACKER ==={Color.RESET}\n")
 
         # Display each suit
         for suit in [Suit.SPADE, Suit.HEART, Suit.DIAMOND, Suit.CLUB]:
@@ -167,6 +164,13 @@ class PokerDeck:
 
         # Display jokers
         self._display_jokers()
+
+        # Show statistics
+        used_count = sum(1 for card in self.cards if card.used and card.suit != Suit.JOKER)
+        available_count = sum(1 for card in self.cards if not card.used and card.suit != Suit.JOKER)
+
+        print(f"\n{Color.BOLD}Cards Used: {Color.RESET}{used_count} / 52", end="")
+        print(f"  |  {Color.BOLD}Available: {Color.RESET}{available_count}")
 
         # Display selected cards
         print(f"\n{Color.BOLD}Selected Cards: {Color.RESET}", end="")
@@ -199,14 +203,6 @@ class PokerDeck:
 
         print()
 
-    def get_available_cards(self) -> List[Card]:
-        """Get list of cards that haven't been used"""
-        return [card for card in self.cards if not card.used and card.suit != Suit.JOKER]
-
-    def get_selected_cards(self) -> List[Card]:
-        """Get list of selected cards"""
-        return self.selected_cards.copy()
-
     def reset(self):
         """Reset all cards to unused state"""
         for card in self.cards:
@@ -228,195 +224,12 @@ class PokerDeck:
         return False
 
 
-class ProbabilityCalculator:
-    """Calculates poker hand probabilities"""
-
-    @staticmethod
-    def combination(n: int, k: int) -> int:
-        """Calculate C(n, k) - n choose k"""
-        if k > n or k < 0:
-            return 0
-        if k == 0 or k == n:
-            return 1
-
-        # Use built-in math for efficiency
-        from math import factorial
-        return factorial(n) // (factorial(k) * factorial(n - k))
-
-    @staticmethod
-    def is_flush(hand: List[Card]) -> bool:
-        """Check if hand is a flush"""
-        if len(hand) < 5:
-            return False
-        first_suit = hand[0].suit
-        return all(card.suit == first_suit for card in hand)
-
-    @staticmethod
-    def is_straight(hand: List[Card]) -> bool:
-        """Check if hand is a straight"""
-        if len(hand) < 5:
-            return False
-
-        ranks = sorted([card.rank for card in hand])
-
-        # Check regular straight
-        if all(ranks[i] == ranks[i-1] + 1 for i in range(1, len(ranks))):
-            return True
-
-        # Check A-2-3-4-5 (wheel)
-        if len(ranks) == 5 and ranks == [1, 2, 3, 4, 5]:
-            return True
-
-        # Check 10-J-Q-K-A
-        if len(ranks) == 5 and ranks == [1, 10, 11, 12, 13]:
-            return True
-
-        return False
-
-    @staticmethod
-    def get_rank_counts(hand: List[Card]) -> Counter:
-        """Get count of each rank in hand"""
-        return Counter(card.rank for card in hand)
-
-    def calculate_probabilities(self, deck: PokerDeck):
-        """Calculate and display probabilities"""
-        selected = deck.get_selected_cards()
-        available = deck.get_available_cards()
-
-        num_selected = len(selected)
-        num_available = len(available)
-        cards_needed = 5 - num_selected
-
-        print(f"\n{Color.BOLD}=== PROBABILITIES ==={Color.RESET}")
-        print(f"Cards selected: {num_selected}")
-        print(f"Cards available: {num_available}")
-
-        if num_selected >= 5:
-            print("\nYou have 5+ cards. Analyzing current hand:")
-            self.analyze_hand(selected[:5])
-            return
-
-        if cards_needed > num_available:
-            print("\nNot enough cards available for analysis.")
-            return
-
-        # Calculate total combinations
-        total_combinations = self.combination(num_available, cards_needed)
-
-        print(f"\nTotal possible combinations: {total_combinations:,}\n")
-
-        # Display probabilities
-        self._display_hand_probabilities(selected, available)
-
-    def _display_hand_probabilities(self, selected: List[Card], available: List[Card]):
-        """Display hand probabilities"""
-        print("Estimated probabilities (based on sampling):\n")
-
-        # Display theoretical probabilities
-        print(f"Royal Flush:      0.00%")
-        print(f"Straight Flush:   0.00%")
-        print(f"Four of a Kind:   0.02%")
-        print(f"Full House:       0.14%")
-        print(f"Flush:            0.20%")
-        print(f"Straight:         0.39%")
-        print(f"Three of a Kind:  2.11%")
-        print(f"Two Pair:         4.75%")
-        print(f"One Pair:        42.26%")
-        print(f"High Card:       50.12%")
-
-        # Show what you're drawing to
-        print(f"\n{Color.BOLD}Drawing to:{Color.RESET}")
-        self._analyze_drawing_hands(selected, available)
-
-    def analyze_hand(self, hand: List[Card]):
-        """Analyze a 5-card hand"""
-        if len(hand) != 5:
-            return
-
-        rank_counts = self.get_rank_counts(hand)
-        counts = sorted(rank_counts.values(), reverse=True)
-
-        is_flush = self.is_flush(hand)
-        is_straight = self.is_straight(hand)
-
-        print(f"\n{Color.BOLD}Current Hand: {Color.RESET}", end="")
-
-        if is_straight and is_flush:
-            # Check for royal flush
-            ranks = sorted([card.rank for card in hand])
-            if ranks == [1, 10, 11, 12, 13]:
-                print("ROYAL FLUSH!")
-            else:
-                print("STRAIGHT FLUSH!")
-        elif counts[0] == 4:
-            print("FOUR OF A KIND!")
-        elif counts[0] == 3 and counts[1] == 2:
-            print("FULL HOUSE!")
-        elif is_flush:
-            print("FLUSH!")
-        elif is_straight:
-            print("STRAIGHT!")
-        elif counts[0] == 3:
-            print("THREE OF A KIND")
-        elif counts[0] == 2 and counts[1] == 2:
-            print("TWO PAIR")
-        elif counts[0] == 2:
-            print("ONE PAIR")
-        else:
-            print("HIGH CARD")
-
-    def _analyze_drawing_hands(self, selected: List[Card], available: List[Card]):
-        """Analyze what hands are being drawn to"""
-        if not selected:
-            print("- Any hand possible")
-            return
-
-        rank_counts = self.get_rank_counts(selected)
-
-        # Check for pair draws
-        for rank, count in rank_counts.items():
-            if count == 2:
-                rank_name = self._get_rank_name(rank)
-                print(f"- Pair of {rank_name}")
-            elif count == 3:
-                print("- Three of a Kind (can make Full House or Four of a Kind)")
-
-        # Check for flush draws
-        suit_counts = Counter(card.suit for card in selected)
-        for suit, count in suit_counts.items():
-            if count >= 4:
-                print(f"- Flush Draw ({count} cards)")
-
-        # Check for straight draws
-        ranks = set(card.rank for card in selected)
-        if len(ranks) >= 4:
-            sorted_ranks = sorted(ranks)
-            near_straight = False
-            for i in range(len(sorted_ranks) - 1):
-                if sorted_ranks[i+1] - sorted_ranks[i] <= 2:
-                    near_straight = True
-                    break
-            if near_straight:
-                print("- Possible Straight Draw")
-
-    @staticmethod
-    def _get_rank_name(rank: int) -> str:
-        """Get name of rank"""
-        names = {
-            1: "Aces",
-            11: "Jacks",
-            12: "Queens",
-            13: "Kings"
-        }
-        return names.get(rank, f"{rank}s")
-
-
 def main():
     """Main program loop"""
     deck = PokerDeck()
-    calc = ProbabilityCalculator()
 
-    print(f"{Color.BOLD}Welcome to Poker Calculator!{Color.RESET}")
+    print(f"{Color.BOLD}Welcome to Poker Card Tracker!{Color.RESET}")
+    print("Track which cards have been played.\n")
     print("Commands:")
     print("  Enter card: <suit><rank> (e.g., h8, sA, d10, cK)")
     print("    Suits: s(spade), h(heart), d(diamond), c(club)")
@@ -428,9 +241,8 @@ def main():
 
     while True:
         deck.display()
-        calc.calculate_probabilities(deck)
 
-        print(f"\n{Color.BOLD}Enter command: {Color.RESET}", end="")
+        print(f"\n{Color.BOLD}Enter card or command: {Color.RESET}", end="")
         user_input = input().strip()
 
         if not user_input:
@@ -444,12 +256,12 @@ def main():
         elif user_input.lower() in ('undo', 'u'):
             if not deck.remove_last_card():
                 print("No cards to undo!")
-                input()
+                input("Press Enter to continue...")
         elif user_input in ('j', 'J'):
             # Handle jokers
             if not deck.select_card(user_input, ""):
                 print("Invalid joker or already used!")
-                input()
+                input("Press Enter to continue...")
         elif len(user_input) >= 2:
             # Parse card input
             suit_char = user_input[0]
@@ -457,18 +269,18 @@ def main():
 
             if not deck.select_card(suit_char, rank_str):
                 print("Invalid card or already used!")
-                input()
+                input("Press Enter to continue...")
         else:
             print("Invalid input!")
-            input()
+            input("Press Enter to continue...")
 
     print(Color.CLEAR)
-    print("Thanks for using Poker Calculator!")
+    print("Thanks for using Poker Card Tracker!")
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print(f"\n{Color.CLEAR}Thanks for using Poker Calculator!")
+        print(f"\n{Color.CLEAR}Thanks for using Poker Card Tracker!")
         sys.exit(0)

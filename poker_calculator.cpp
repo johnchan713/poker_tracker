@@ -1,11 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <map>
-#include <set>
 #include <algorithm>
 #include <iomanip>
-#include <cmath>
 
 // ANSI color codes
 #define RESET   "\033[0m"
@@ -129,7 +126,7 @@ public:
 
     void display() const {
         std::cout << CLEAR;
-        std::cout << BOLD << "=== POKER CALCULATOR ===" << RESET << "\n\n";
+        std::cout << BOLD << "=== POKER CARD TRACKER ===" << RESET << "\n\n";
 
         // Display each suit
         displaySuit(SPADE);
@@ -137,6 +134,19 @@ public:
         displaySuit(DIAMOND);
         displaySuit(CLUB);
         displayJokers();
+
+        // Show statistics
+        int usedCount = 0;
+        int availableCount = 0;
+        for (const auto& card : cards) {
+            if (card.suit != JOKER) {
+                if (card.used) usedCount++;
+                else availableCount++;
+            }
+        }
+
+        std::cout << "\n" << BOLD << "Cards Used: " << RESET << usedCount << " / 52";
+        std::cout << "  |  " << BOLD << "Available: " << RESET << availableCount << "\n";
 
         std::cout << "\n" << BOLD << "Selected Cards: " << RESET;
         if (selectedCards.empty()) {
@@ -184,20 +194,6 @@ public:
         std::cout << "\n";
     }
 
-    std::vector<Card> getAvailableCards() const {
-        std::vector<Card> available;
-        for (const auto& card : cards) {
-            if (!card.used && card.suit != JOKER) {
-                available.push_back(card);
-            }
-        }
-        return available;
-    }
-
-    std::vector<Card> getSelectedCards() const {
-        return selectedCards;
-    }
-
     void reset() {
         for (auto& card : cards) {
             card.used = false;
@@ -221,240 +217,11 @@ public:
     }
 };
 
-// Probability Calculator
-class ProbabilityCalculator {
-private:
-    // Combination function: C(n, k)
-    long long combination(int n, int k) {
-        if (k > n) return 0;
-        if (k == 0 || k == n) return 1;
-
-        long long result = 1;
-        for (int i = 0; i < k; i++) {
-            result *= (n - i);
-            result /= (i + 1);
-        }
-        return result;
-    }
-
-    // Check if cards form a flush
-    bool isFlush(const std::vector<Card>& hand) {
-        if (hand.size() < 5) return false;
-        Suit firstSuit = hand[0].suit;
-        for (size_t i = 1; i < hand.size(); i++) {
-            if (hand[i].suit != firstSuit) return false;
-        }
-        return true;
-    }
-
-    // Check if cards form a straight
-    bool isStraight(std::vector<Card> hand) {
-        if (hand.size() < 5) return false;
-
-        std::sort(hand.begin(), hand.end(),
-            [](const Card& a, const Card& b) { return a.rank < b.rank; });
-
-        // Check regular straight
-        bool consecutive = true;
-        for (size_t i = 1; i < hand.size(); i++) {
-            if (hand[i].rank != hand[i-1].rank + 1) {
-                consecutive = false;
-                break;
-            }
-        }
-        if (consecutive) return true;
-
-        // Check A-2-3-4-5 (wheel)
-        if (hand.size() == 5 && hand[0].rank == 1 && hand[1].rank == 2 &&
-            hand[2].rank == 3 && hand[3].rank == 4 && hand[4].rank == 5) {
-            return true;
-        }
-
-        // Check 10-J-Q-K-A
-        if (hand.size() == 5 && hand[0].rank == 1 && hand[1].rank == 10 &&
-            hand[2].rank == 11 && hand[3].rank == 12 && hand[4].rank == 13) {
-            return true;
-        }
-
-        return false;
-    }
-
-    // Get rank counts
-    std::map<int, int> getRankCounts(const std::vector<Card>& hand) {
-        std::map<int, int> counts;
-        for (const auto& card : hand) {
-            counts[card.rank]++;
-        }
-        return counts;
-    }
-
-public:
-    void calculateProbabilities(const PokerDeck& deck) {
-        std::vector<Card> selected = deck.getSelectedCards();
-        std::vector<Card> available = deck.getAvailableCards();
-
-        int numSelected = selected.size();
-        int numAvailable = available.size();
-        int cardsNeeded = 5 - numSelected;
-
-        std::cout << "\n" << BOLD << "=== PROBABILITIES ===" << RESET << "\n";
-        std::cout << "Cards selected: " << numSelected << "\n";
-        std::cout << "Cards available: " << numAvailable << "\n";
-
-        if (numSelected >= 5) {
-            std::cout << "\nYou have 5+ cards. Analyzing current hand:\n";
-            analyzeHand(std::vector<Card>(selected.begin(), selected.begin() + 5));
-            return;
-        }
-
-        if (cardsNeeded > numAvailable) {
-            std::cout << "\nNot enough cards available for analysis.\n";
-            return;
-        }
-
-        // Calculate probabilities for different hands
-        long long totalCombinations = combination(numAvailable, cardsNeeded);
-
-        std::cout << "\nTotal possible combinations: " << totalCombinations << "\n\n";
-
-        // Calculate specific hand probabilities
-        calculateHandProbabilities(selected, available, cardsNeeded, totalCombinations);
-    }
-
-    void calculateHandProbabilities(const std::vector<Card>& selected,
-                                    const std::vector<Card>& available,
-                                    int cardsNeeded,
-                                    long long /* totalCombinations */) {
-
-        // Generate all combinations (simplified for demonstration)
-        // For practical use, you'd implement a more efficient algorithm
-        std::vector<int> indices(cardsNeeded);
-        for (int i = 0; i < cardsNeeded; i++) {
-            indices[i] = i;
-        }
-
-        std::cout << "Estimated probabilities (based on sampling):\n\n";
-
-        // Display general probabilities (theoretical for Texas Hold'em)
-        std::cout << std::fixed << std::setprecision(2);
-        std::cout << "Royal Flush:      0.00%\n";
-        std::cout << "Straight Flush:   0.00%\n";
-        std::cout << "Four of a Kind:   0.02%\n";
-        std::cout << "Full House:       0.14%\n";
-        std::cout << "Flush:            0.20%\n";
-        std::cout << "Straight:         0.39%\n";
-        std::cout << "Three of a Kind:  2.11%\n";
-        std::cout << "Two Pair:         4.75%\n";
-        std::cout << "One Pair:        42.26%\n";
-        std::cout << "High Card:       50.12%\n";
-
-        // Show what you're drawing to
-        std::cout << "\n" << BOLD << "Drawing to:" << RESET << "\n";
-        analyzeDrawingHands(selected, available);
-    }
-
-    void analyzeHand(const std::vector<Card>& hand) {
-        if (hand.size() != 5) return;
-
-        auto rankCounts = getRankCounts(hand);
-        std::vector<int> counts;
-        for (const auto& pair : rankCounts) {
-            counts.push_back(pair.second);
-        }
-        std::sort(counts.rbegin(), counts.rend());
-
-        bool flush = isFlush(hand);
-        bool straight = isStraight(hand);
-
-        std::cout << "\n" << BOLD << "Current Hand: " << RESET;
-
-        if (straight && flush) {
-            // Check for royal flush
-            std::vector<Card> sortedHand = hand;
-            std::sort(sortedHand.begin(), sortedHand.end(),
-                [](const Card& a, const Card& b) { return a.rank < b.rank; });
-            if (sortedHand[0].rank == 1 && sortedHand[4].rank == 13) {
-                std::cout << "ROYAL FLUSH!\n";
-            } else {
-                std::cout << "STRAIGHT FLUSH!\n";
-            }
-        } else if (counts[0] == 4) {
-            std::cout << "FOUR OF A KIND!\n";
-        } else if (counts[0] == 3 && counts[1] == 2) {
-            std::cout << "FULL HOUSE!\n";
-        } else if (flush) {
-            std::cout << "FLUSH!\n";
-        } else if (straight) {
-            std::cout << "STRAIGHT!\n";
-        } else if (counts[0] == 3) {
-            std::cout << "THREE OF A KIND\n";
-        } else if (counts[0] == 2 && counts[1] == 2) {
-            std::cout << "TWO PAIR\n";
-        } else if (counts[0] == 2) {
-            std::cout << "ONE PAIR\n";
-        } else {
-            std::cout << "HIGH CARD\n";
-        }
-    }
-
-    void analyzeDrawingHands(const std::vector<Card>& selected,
-                            const std::vector<Card>& /* available */) {
-
-        auto rankCounts = getRankCounts(selected);
-
-        // Check for pair draws
-        for (const auto& pair : rankCounts) {
-            if (pair.second == 2) {
-                std::cout << "- Pair of " << (pair.first == 1 ? "Aces" :
-                    (pair.first == 11 ? "Jacks" :
-                    (pair.first == 12 ? "Queens" :
-                    (pair.first == 13 ? "Kings" : std::to_string(pair.first) + "s")))) << "\n";
-            } else if (pair.second == 3) {
-                std::cout << "- Three of a Kind (can make Full House or Four of a Kind)\n";
-            }
-        }
-
-        // Check for flush draws
-        std::map<Suit, int> suitCounts;
-        for (const auto& card : selected) {
-            suitCounts[card.suit]++;
-        }
-        for (const auto& pair : suitCounts) {
-            if (pair.second >= 4) {
-                std::cout << "- Flush Draw (" << pair.second << " cards)\n";
-            }
-        }
-
-        // Check for straight draws
-        std::set<int> ranks;
-        for (const auto& card : selected) {
-            ranks.insert(card.rank);
-        }
-
-        if (ranks.size() >= 4) {
-            std::vector<int> sortedRanks(ranks.begin(), ranks.end());
-            bool nearStraight = false;
-            for (size_t i = 0; i < sortedRanks.size() - 1; i++) {
-                if (sortedRanks[i+1] - sortedRanks[i] <= 2) {
-                    nearStraight = true;
-                }
-            }
-            if (nearStraight) {
-                std::cout << "- Possible Straight Draw\n";
-            }
-        }
-
-        if (selected.empty()) {
-            std::cout << "- Any hand possible\n";
-        }
-    }
-};
-
 int main() {
     PokerDeck deck;
-    ProbabilityCalculator calc;
 
-    std::cout << BOLD << "Welcome to Poker Calculator!" << RESET << "\n";
+    std::cout << BOLD << "Welcome to Poker Card Tracker!" << RESET << "\n";
+    std::cout << "Track which cards have been played.\n\n";
     std::cout << "Commands:\n";
     std::cout << "  Enter card: <suit><rank> (e.g., h8, sA, d10, cK)\n";
     std::cout << "    Suits: s(spade), h(heart), d(diamond), c(club)\n";
@@ -466,9 +233,8 @@ int main() {
 
     while (true) {
         deck.display();
-        calc.calculateProbabilities(deck);
 
-        std::cout << "\n" << BOLD << "Enter command: " << RESET;
+        std::cout << "\n" << BOLD << "Enter card or command: " << RESET;
         std::string input;
         std::getline(std::cin, input);
 
@@ -485,12 +251,14 @@ int main() {
         } else if (input == "undo" || input == "u") {
             if (!deck.removeLastCard()) {
                 std::cout << "No cards to undo!\n";
+                std::cout << "Press Enter to continue...";
                 std::cin.get();
             }
         } else if (input == "j" || input == "J") {
             // Handle jokers
             if (!deck.selectCard(input[0], "")) {
                 std::cout << "Invalid joker or already used!\n";
+                std::cout << "Press Enter to continue...";
                 std::cin.get();
             }
         } else if (input.length() >= 2) {
@@ -500,16 +268,18 @@ int main() {
 
             if (!deck.selectCard(suit, rank)) {
                 std::cout << "Invalid card or already used!\n";
+                std::cout << "Press Enter to continue...";
                 std::cin.get();
             }
         } else {
             std::cout << "Invalid input!\n";
+            std::cout << "Press Enter to continue...";
             std::cin.get();
         }
     }
 
     std::cout << CLEAR;
-    std::cout << "Thanks for using Poker Calculator!\n";
+    std::cout << "Thanks for using Poker Card Tracker!\n";
 
     return 0;
 }

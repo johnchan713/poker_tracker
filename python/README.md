@@ -1,13 +1,13 @@
-# Poker Calculator (Python Version)
+# Poker Card Tracker (Python Version)
 
-A Python 3 terminal-based poker probability calculator that helps you track cards and calculate hand probabilities in real-time.
+A Python 3 terminal-based card tracking system that helps you keep track of which cards have been played.
 
 ## Features
 
 - **Visual Card Tracking**: See all 52 cards displayed with suit symbols (♠ ♥ ♦ ♣)
 - **Color-Coded Display**: Used cards appear dimmed, available cards are bright
-- **Real-Time Probability Calculations**: Get instant probability updates for poker hands
-- **Texas Hold'em Hand Analysis**: Calculates probabilities for all poker hands
+- **Real-Time Updates**: Card table updates immediately as you enter cards
+- **Card Statistics**: Shows count of used/available cards
 - **Joker Support**: Includes both small (j) and large (J) jokers
 - **Interactive Interface**: Easy card entry and management
 - **Pure Python**: No external dependencies required
@@ -101,36 +101,20 @@ The screen shows all cards organized by suit:
 - **Red suits**: Hearts (♥) and Diamonds (♦)
 - **Black suits**: Spades (♠) and Clubs (♣)
 
-### Probability Display
+### Statistics Display
 
 The program shows:
 
-1. **Number of cards selected**: How many cards you've entered
-2. **Cards available**: How many cards remain unselected
-3. **Hand probabilities**: Chances of getting different poker hands
-4. **Drawing to**: What hands you're currently building toward
-
-### Poker Hands (Ranked)
-
-From highest to lowest:
-
-1. **Royal Flush**: A-K-Q-J-10 of the same suit
-2. **Straight Flush**: Five consecutive cards of the same suit
-3. **Four of a Kind**: Four cards of the same rank
-4. **Full House**: Three of a kind + a pair
-5. **Flush**: Five cards of the same suit
-6. **Straight**: Five consecutive cards (any suit)
-7. **Three of a Kind**: Three cards of the same rank
-8. **Two Pair**: Two different pairs
-9. **One Pair**: Two cards of the same rank
-10. **High Card**: No matching cards
+1. **Cards Used**: How many cards have been selected (out of 52)
+2. **Available**: How many cards remain unselected
+3. **Selected Cards**: List of all cards entered in order
 
 ## Usage Example
 
 ### Session Example
 
 ```
-=== POKER CALCULATOR ===
+=== POKER CARD TRACKER ===
 
 ♠ | A  2  3  4  5  6  7  8  9 10  J  Q  K
 ♥ | A  2  3  4  5  6  7  8  9 10  J  Q  K
@@ -138,50 +122,44 @@ From highest to lowest:
 ♣ | A  2  3  4  5  6  7  8  9 10  J  Q  K
 ★ | j  J
 
+Cards Used: 0 / 52  |  Available: 52
+
 Selected Cards: None
 
-=== PROBABILITIES ===
-Cards selected: 0
-Cards available: 52
-
-Enter command: h8
+Enter card or command: h8
 
 [Display updates showing 8 of Hearts dimmed]
 
+=== POKER CARD TRACKER ===
+
+♠ | A  2  3  4  5  6  7  8  9 10  J  Q  K
+♥ | A  2  3  4  5  6  7  8  9 10  J  Q  K (8 is dimmed)
+♦ | A  2  3  4  5  6  7  8  9 10  J  Q  K
+♣ | A  2  3  4  5  6  7  8  9 10  J  Q  K
+★ | j  J
+
+Cards Used: 1 / 52  |  Available: 51
+
 Selected Cards: ♥8
 
-=== PROBABILITIES ===
-Cards selected: 1
-Cards available: 51
+Enter card or command: sA
 
-Drawing to:
-- Any hand possible
+[Display updates showing Ace of Spades dimmed]
 
-Enter command: hK
+Cards Used: 2 / 52  |  Available: 50
 
-[Display updates showing King of Hearts dimmed]
+Selected Cards: ♥8 ♠A
 
-Selected Cards: ♥8 ♥K
-
-=== PROBABILITIES ===
-Cards selected: 2
-Cards available: 50
-
-Drawing to:
-- Possible Flush Draw
-
-Enter command: h2
-
-[Continues building hand...]
+[Continues tracking cards...]
 ```
 
 ## Tips
 
-1. **Track opponent's cards**: Enter cards you've seen to calculate what's left
-2. **Calculate outs**: See what cards remain to complete your hand
+1. **Track all visible cards**: Enter any cards you can see on the table or in hands
+2. **See what's left**: Bright cards show which cards are still available
 3. **Use reset often**: Start fresh for new hands with `reset`
 4. **Undo mistakes**: Made an error? Use `undo` to remove the last card
-5. **Watch for draws**: The program shows what you're drawing to (flush, straight, etc.)
+5. **Quick reference**: The counter shows exactly how many cards are left
 6. **Exit quickly**: Press Ctrl+C to exit at any time
 
 ## Technical Details
@@ -189,7 +167,7 @@ Enter command: h2
 - **Language**: Python 3.6+
 - **Dependencies**: None (uses standard library only)
 - **Display**: ANSI escape codes for colors and formatting
-- **Probability Calculation**: Combinatorial analysis
+- **Card Tracking**: Real-time status updates
 - **Platform**: Linux/macOS/Windows (with ANSI support)
 - **Code Style**: Type hints, enums, and object-oriented design
 
@@ -213,10 +191,6 @@ Enter command: h2
 - Ensure card hasn't already been used
 - Use `reset` to clear and start over
 
-### Probability seems off?
-- The program uses theoretical Texas Hold'em probabilities
-- Probabilities change as you select more cards
-
 ### Python version error?
 ```bash
 # Check your Python version
@@ -237,9 +211,9 @@ The Python version offers the same functionality as the C++ version with these d
 
 ## Notes
 
-- Jokers are displayed but excluded from probability calculations
-- The calculator assumes a standard 52-card deck
-- Probabilities are based on 5-card poker hands
+- Jokers are displayed for tracking but not counted in the 52-card statistics
+- The tracker supports a standard 52-card deck
+- Cards update in real-time as you enter them
 - The program uses bright/dim colors to show card availability
 - Uses only Python standard library - no pip install needed
 
@@ -249,4 +223,4 @@ See LICENSE file in the repository root for details.
 
 ## Contributing
 
-Feel free to submit issues or pull requests to improve the calculator!
+Feel free to submit issues or pull requests to improve the tracker!
